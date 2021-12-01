@@ -22,6 +22,9 @@ public class SoyBoyController : MonoBehaviour
 
     public float jumpDurationThreshold = 0.25f;
     private float jumpDuration;
+
+    public float airAccel = 3f;
+
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -61,7 +64,27 @@ public class SoyBoyController : MonoBehaviour
             return false;
         }
     }
-    // Update is called once per frame
+
+    public bool IsWallToLeftOrRight()
+    {
+        // 1
+        bool wallOnleft = Physics2D.Raycast(new Vector2(
+        transform.position.x - width, transform.position.y),
+        -Vector2.right, rayCastLengthCheck);
+        bool wallOnRight = Physics2D.Raycast(new Vector2(
+        transform.position.x + width, transform.position.y),
+        Vector2.right, rayCastLengthCheck);
+        // 2
+        if (wallOnleft || wallOnRight)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     void Update()
     {
         
@@ -99,10 +122,18 @@ public class SoyBoyController : MonoBehaviour
     void FixedUpdate()
     {
         // 1
-        var acceleration = accel;
+        var acceleration = 0f;
+        if (PlayerIsOnGround())
+        {
+            acceleration = accel;
+        }
+        else
+        {
+            acceleration = airAccel;
+        }
         var xVelocity = 0f;
         // 2
-        if (input.x == 0)
+        if (PlayerIsOnGround() && input.x == 0)
         {
             xVelocity = 0f;
         }
